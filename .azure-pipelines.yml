@@ -1,0 +1,26 @@
+name: 1.0.$(rev:r)
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: Docker@2
+  displayName: Login
+  inputs:
+    containerRegistry: 'crvecc.azurecr.io-Docker'
+    command: 'login'
+- task: CmdLine@2
+  displayName: Build
+  inputs:
+    script: |
+      docker run --privileged --rm tonistiigi/binfmt --install arm64
+      docker run --privileged --rm tonistiigi/binfmt
+      docker buildx create --use
+      docker buildx build --platform linux/amd64,linux/arm64 \
+        -t crvecc.azurecr.io/bind:$(build.buildNumber) \
+        -t crvecc.azurecr.io/bind:latest \
+        --push \
+        .
