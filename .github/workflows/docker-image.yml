@@ -1,0 +1,33 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  image_name: bind
+  version: 1.0
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repository 
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Docker Login
+      run: echo -n ${ACR_CRVECC_PASSWORD} | docker login -u ${ACR_CRVECC_USERNAME} crvecc.azurecr.io
+      env:
+        ACR_CRVECC_PASSWORD: ${{ secrets.ACR_CRVECC_PASSWORD }}
+        ACR_CRVECC_USERNAME: ${{ secrets.ACR_CRVECC_USERNAME }}
+        
+    - name: Build the Docker image
+      run: |
+        # docker build . --tag ${image}:${version}.${GITHUB_RUN_ID}.${GITHUB_RUN_NUMBER}
+        printenv
