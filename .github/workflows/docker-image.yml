@@ -22,7 +22,7 @@ jobs:
       with:
         fetch-depth: 0
     - name: Docker Login
-      run: echo -n ${ACR_CRVECC_PASSWORD} | docker login -u ${ACR_CRVECC_USERNAME} crvecc.azurecr.io
+      run: echo -n ${ACR_CRVECC_PASSWORD} | docker login -u ${ACR_CRVECC_USERNAME} --password-stdin crvecc.azurecr.io
       env:
         ACR_CRVECC_PASSWORD: ${{ secrets.ACR_CRVECC_PASSWORD }}
         ACR_CRVECC_USERNAME: ${{ secrets.ACR_CRVECC_USERNAME }}
