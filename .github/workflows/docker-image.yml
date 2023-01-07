@@ -23,8 +23,8 @@ jobs:
         fetch-depth: 0
     - name: Get version
       run: |
-        docker run --rm -it -v "$(pwd):/repo" gittools/gitversion /repo | sed -E 's/  "/GITVERSION_/; s/": /=/; s/"//g; s/\{//; s/\}//' >> $GITHUB_ENV
-        docker run --rm -it -v "$(pwd):/repo" gittools/gitversion /repo | sed -E 's/  "/GITVERSION_/; s/": /=/; s/"//g; s/\{//; s/\}//'
+        docker run --rm -v "$(pwd):/repo" gittools/gitversion /repo | sed -E 's/  "/GITVERSION_/; s/": /=/; s/"//g; s/\{//; s/\}//' >> $GITHUB_ENV
+        docker run --rm -v "$(pwd):/repo" gittools/gitversion /repo | sed -E 's/  "/GITVERSION_/; s/": /=/; s/"//g; s/\{//; s/\}//'
     - name: Docker Login
       run: echo -n ${ACR_CRVECC_PASSWORD} | docker login -u ${ACR_CRVECC_USERNAME} --password-stdin crvecc.azurecr.io
       env:
