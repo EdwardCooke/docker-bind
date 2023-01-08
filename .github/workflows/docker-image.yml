@@ -8,7 +8,6 @@ on:
 
 env:
   image_name: bind
-  version: 1.0
 
 jobs:
 
@@ -21,17 +20,23 @@ jobs:
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    - name: Get version
-      run: |
-        docker run --rm -v "$(pwd):/repo" gittools/gitversion /repo | sed -E 's/  "/GITVERSION_/; s/": /=/; s/"//g; s/\{//; s/\}//' >> $GITHUB_ENV
-        docker run --rm -v "$(pwd):/repo" gittools/gitversion /repo | sed -E 's/  "/GITVERSION_/; s/": /=/; s/"//g; s/\{//; s/\}//'
     - name: Docker Login
-      run: echo -n ${ACR_CRVECC_PASSWORD} | docker login -u ${ACR_CRVECC_USERNAME} --password-stdin crvecc.azurecr.io
+      run: echo -n ${REGISTRY_PASSWORD} | docker login -u ${REGISTRY_USERNAME} --password-stdin ${REGISTRY_NAME}
       env:
-        ACR_CRVECC_PASSWORD: ${{ secrets.ACR_CRVECC_PASSWORD }}
-        ACR_CRVECC_USERNAME: ${{ secrets.ACR_CRVECC_USERNAME }}
-        
-    - name: Build the Docker image
+        REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+        REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+        REGISTRY_NAME: ${{ secrets.REGISTRY_NAME }}
+    - name: Build and push the Docker image
       run: |
-        # docker build . --tag ${image}:${version}.${GITHUB_RUN_ID}.${GITHUB_RUN_NUMBER}
-        printenv
+        IMAGE_VERSION=$(date +%Y%m%d-%H%M%S)
+        docker run --privileged --rm tonistiigi/binfmt --install arm64
+        docker run --privileged --rm tonistiigi/binfmt
+        docker buildx create --use
+        docker buildx build --platform linux/amd64,linux/arm64 \
+          -t ${REGISTRY_NAME}/${image_name}:${IMAGE_VERSION} \
+          -t ${REGISTRY_NAME}/${image_name}:latest \
+          --push \
+          .
+        docker image push . --tag ${image}:${VECC_VERSION}
+      env:
+        REGISTRY_NAME: ${{ secrets.REGISTRY_NAME }}
