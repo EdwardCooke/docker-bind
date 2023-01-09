@@ -1,6 +1,11 @@
-FROM alpine:3.14.2
+FROM alpine
 
 RUN apk add --no-cache bind bind-dnssec-tools
 VOLUME /etc/bind
 
-CMD ["named", "-g"]
+RUN cp /etc/bind/named.conf.recursive /etc/bind/named.conf
+WORKDIR app
+
+COPY startup.sh .
+
+CMD ["./startup.sh"]
